@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build
+*.vsix
+.vscode-test/
+
+# Development
+.git/
+.github/
+.gitignore
+.eslintrc.json
+*.map
+
+# Scripts
+scripts/
+
+# Test
+test/
+*.test.ts
+*.spec.ts
+
+# Misc
+.DS_Store
+Thumbs.db
+*.log

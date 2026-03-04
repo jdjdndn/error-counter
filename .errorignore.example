@@ -1,0 +1,25 @@
+# Error Counter Ignore File
+# Similar to .gitignore format
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+build/
+
+# Generated files
+*.d.ts
+*.min.js
+*.min.css
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db

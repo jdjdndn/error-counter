@@ -1,0 +1,154 @@
+{
+  "name": "error-counter",
+  "displayName": "Error Counter",
+  "description": "多功能错误显示插件：文件树徽章、状态栏计数、代码行内提示、错误概览面板",
+  "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "errorCounter.refresh",
+        "title": "Error Counter: 刷新"
+      },
+      {
+        "command": "errorCounter.toggle",
+        "title": "Error Counter: 开关"
+      },
+      {
+        "command": "errorCounter.nextError",
+        "title": "Error Counter: 下一个错误"
+      },
+      {
+        "command": "errorCounter.prevError",
+        "title": "Error Counter: 上一个错误"
+      },
+      {
+        "command": "errorCounter.showStats",
+        "title": "Error Counter: 显示统计"
+      },
+      {
+        "command": "errorCounter.exportReport",
+        "title": "Error Counter: 导出错误报告"
+      },
+      {
+        "command": "errorCounter.copyError",
+        "title": "Error Counter: 复制错误信息"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "errorCounter",
+          "title": "Error Counter",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "errorCounter": [
+        {
+          "id": "errorCounterPanel",
+          "name": "错误概览"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "errorCounter.copyError",
+          "when": "view == errorCounterPanel && viewItem == errorItem",
+          "group": "inline"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "errorCounter.nextError",
+        "key": "alt+n",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "errorCounter.prevError",
+        "key": "alt+p",
+        "when": "editorTextFocus"
+      }
+    ],
+    "configuration": {
+      "title": "Error Counter",
+      "properties": {
+        "errorCounter.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用/禁用插件"
+        },
+        "errorCounter.showErrors": {
+          "type": "boolean",
+          "default": true,
+          "description": "显示错误计数"
+        },
+        "errorCounter.showWarnings": {
+          "type": "boolean",
+          "default": true,
+          "description": "显示警告计数"
+        },
+        "errorCounter.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "在状态栏显示总错误数"
+        },
+        "errorCounter.showErrorLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "在代码行尾显示错误信息"
+        },
+        "errorCounter.ignorePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/out/**",
+            "**/.git/**",
+            "**/*.d.ts"
+          ],
+          "description": "忽略的文件/文件夹 glob 模式"
+        },
+        "errorCounter.showErrorIgnoreFile": {
+          "type": "boolean",
+          "default": true,
+          "description": "读取 .errorignore 文件"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "package": "node scripts/package.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "minimatch": "^9.0.3"
+  }
+}
