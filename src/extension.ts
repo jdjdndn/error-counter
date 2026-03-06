@@ -150,6 +150,20 @@ function registerCommands(context: vscode.ExtensionContext) {
             }
         })
     );
+
+    // 扫描工作区
+    context.subscriptions.push(
+        vscode.commands.registerCommand('errorCounter.scanWorkspace', async () => {
+            vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: "Error Counter: 正在扫描工作区...",
+                cancellable: false
+            }, async () => {
+                const errorCount = await diagnosticWatcher.scanWorkspace();
+                vscode.window.showInformationMessage(`Error Counter: 扫描完成，发现 ${errorCount} 个错误`);
+            });
+        })
+    );
 }
 
 async function navigateError(direction: number): Promise<void> {

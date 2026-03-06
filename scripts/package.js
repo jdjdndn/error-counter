@@ -6,9 +6,29 @@ const path = require('path');
 
 const projectRoot = path.join(__dirname, '..');
 const outDir = path.join(projectRoot, 'out');
+const packageJsonPath = path.join(projectRoot, 'package.json');
 
 // Read package.json
-const packageJson = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8'));
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+// Auto-increment version (patch)
+function incrementVersion(version) {
+    const parts = version.split('.').map(Number);
+    if (parts.length === 3) {
+        parts[2]++; // Increment patch version
+        return parts.join('.');
+    }
+    return version;
+}
+
+// Increment version and save back to package.json
+const oldVersion = packageJson.version;
+const newVersion = incrementVersion(oldVersion);
+packageJson.version = newVersion;
+
+// Save updated package.json
+fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
+console.log(`Version: ${oldVersion} -> ${newVersion}`);
 
 // Parse .vscodeignore file
 function parseIgnoreFile(ignoreFilePath) {

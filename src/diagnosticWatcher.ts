@@ -50,7 +50,19 @@ export class DiagnosticWatcher {
         initialDelay: 3000,
         maxPathCacheSize: 10000,
         idleTimeout: 50, // 空闲处理超时
+        scanBatchSize: 50, // 批量扫描文件数
+        scanDelay: 100, // 扫描间隔
     };
+
+    // 要扫描的文件模式
+    private readonly SCAN_PATTERNS = [
+        '**/*.js',
+        '**/*.jsx',
+        '**/*.ts',
+        '**/*.tsx',
+        '**/*.mjs',
+        '**/*.cjs'
+    ];
 
     constructor(configManager: ConfigManager) {
         this.configManager = configManager;
@@ -58,6 +70,8 @@ export class DiagnosticWatcher {
         // 延迟初始化
         setTimeout(() => {
             this.scanDiagnostics();
+            // 主动扫描工作区文件以触发诊断
+            this.triggerWorkspaceScan();
         }, this.CONFIG.initialDelay);
 
         // 监听文件打开
@@ -95,6 +109,64 @@ export class DiagnosticWatcher {
                 }
             })
         );
+    }
+
+    /**
+     * 主动扫描工作区文件以触发 VSCode 诊断
+     * 解决未打开文件没有错误检测的问题
+     */
+    private async triggerWorkspaceScan(): Promise<void> {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+        if (!workspaceFolders || workspaceFolders.length === 0) {
+            return;
+        }
+
+        // 收集所有需要扫描的文件
+        const filesToScan: vscode.Uri[] = [];
+
+        for (const pattern of this.SCAN_PATTERNS) {
+            const files = await vscode.workspace.findFiles(pattern, '**/node_modules/**');
+            for (const file of files) {
+                if (!this.configManager.shouldIgnore(file)) {
+                    filesToScan.push(file);
+                }
+            }
+        }
+
+        // 批量打开文件以触发诊断（不显示在编辑器中）
+        for (let i = 0; i < filesToScan.length; i += this.CONFIG.scanBatchSize) {
+            const batch = filesToScan.slice(i, i + this.CONFIG.scanBatchSize);
+
+            for (const uri of batch) {
+                try {
+                    // 打开文档但不显示，触发语言服务器诊断
+                    await vscode.workspace.openTextDocument(uri);
+                } catch {
+                    // 忽略无法打开的文件
+                }
+            }
+
+            // 批次间延迟，避免性能问题
+            if (i + this.CONFIG.scanBatchSize < filesToScan.length) {
+                await new Promise(resolve => setTimeout(resolve, this.CONFIG.scanDelay));
+            }
+        }
+
+        // 扫描完成后更新诊断
+        this.debounceScan();
+    }
+
+    /**
+     * 公共方法：手动触发工作区扫描
+     */
+    public async scanWorkspace(): Promise<number> {
+        await this.triggerWorkspaceScan();
+        const allDiagnostics = vscode.languages.getDiagnostics();
+        let count = 0;
+        for (const [, diags] of allDiagnostics) {
+            count += diags.filter(d => d.severity === vscode.DiagnosticSeverity.Error).length;
+        }
+        return count;
     }
 
     /**

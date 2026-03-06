@@ -2,7 +2,7 @@
   "name": "error-counter",
   "displayName": "Error Counter",
   "description": "多功能错误显示插件：文件树徽章、状态栏计数、代码行内提示、错误概览面板",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "your-publisher-name",
   "engines": {
     "vscode": "^1.85.0"
@@ -43,6 +43,10 @@
       {
         "command": "errorCounter.copyError",
         "title": "Error Counter: 复制错误信息"
+      },
+      {
+        "command": "errorCounter.scanWorkspace",
+        "title": "Error Counter: 扫描工作区错误"
       }
     ],
     "viewsContainers": {
